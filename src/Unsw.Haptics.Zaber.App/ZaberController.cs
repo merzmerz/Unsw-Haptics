@@ -15,11 +15,10 @@ public class ZaberController : IDisposable
     {
         var options = optionsProvider.Value; // access zaber controller options(port and movementrange)
         Library.EnableDeviceDbStore(); // enable database storage
-        //_connection = Connection.OpenSerialPort(options.PortName); // initialize connection with zaber
-        _connection = Connection.OpenIot(options.PortName);
+        //_connection = Connection.OpenSerialPort(options.PortName); // For initializing connection with physical Zaber Linear stage device
+        _connection = Connection.OpenIot(options.PortName); // For initializing connection with virtual Zaber Linear stage device
         Console.WriteLine($"Port {options.PortName} .");
         _connection.EnableAlerts();
-        //_connection.DetectDevices();
         var deviceList = _connection.DetectDevices();
         Console.WriteLine($"Found {deviceList.Length} devices.");
         var device = deviceList[0];
@@ -29,10 +28,9 @@ public class ZaberController : IDisposable
         {
             axis.Home();
         }
-        //axis.MoveAbsolute(10,  Units.Length_Millimetres);
+
         _devices = options.MovementRanges.ToDictionary(r => r.Key, r =>
         {
-            //var axis = _connection.GetDevice(r.Key).GetAxis(1);
             var axis = device.GetAxis(1);
             return new ZaberDevice(axis, r.Value);
         });
